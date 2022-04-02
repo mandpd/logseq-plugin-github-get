@@ -1,5 +1,7 @@
 node_modules
 .parcel-cache
+.vscode
+.lsp/.cache
 docs
 samples
 .pnpm-debug.log

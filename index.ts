@@ -4,20 +4,20 @@ import { getFile, CodeType, getCommits, getRepos } from "./FileUtils";
 
 const settingsTemplate = [
   {
-    key: "githubAccount",
-    type: "string",
-    default: "",
-    title: "Required: Github Account",
-    description:
-      "Your github account username. For private repositories it must have access to the repo that contains the code to be retrieved",
-  },
-  {
     key: "githubPat",
     type: "string",
     default: "",
     title: "Required: Your Personal Access Token",
     description:
-      "The plugin requires a personal access token with full repo rights. For details on how to set this up for your github account, see the README notes.",
+      "The plugin requires a personal access token with full repo rights. For details on how to set this up for your github account, see the README notes for more details.",
+  },
+  {
+    key: "githubAccount",
+    type: "string",
+    default: "",
+    title: "Required: Default Github Account",
+    description:
+      "Your default github account username. For private repositories, it must have access to the repo that contains the code to be retrieved. See the README notes for more details.",
   },
   {
     key: "githubRepo",
@@ -163,11 +163,11 @@ logseq
     );
 
     logseq.setMainUIInlineStyle({
-      position: 'fixed',
-      width: '290px',
+      position: "fixed",
+      width: "290px",
       zIndex: 999,
-      transform: 'translateX(-50%)',
-    })
+      transform: "translateX(-50%)",
+    });
 
     logseq.App.onMacroRendererSlotted(({ slot, payload }) => {
       let [type, filePath, commit_id, pin] = payload.arguments;

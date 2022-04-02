@@ -1,0 +1,30 @@
+{
+  "name": "logseq-plugin-github-get",
+  "version": "0.0.1",
+  "description": "Embed code from a github repo",
+  "main": "dist/index.html",
+  "targets": {
+    "main": false
+  },
+  "keywords": [
+    "logseq"
+  ],
+  "scripts": {
+    "dev": "parcel ./index.html --public-url ./",
+    "build": "parcel build --no-source-maps index.html --public-url ./"
+  },
+  "author": "p4th",
+  "logseq": {
+    "id": "logseq-vscode-ref",
+    "icon": "./icon.png"
+  },
+  "dependencies": {
+    "@logseq/libs": "0.0.1-alpha.35",
+    "axios": "^0.26.0"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "parcel": "2.0.0",
+    "typescript": "4.4.3"
+  }
+}

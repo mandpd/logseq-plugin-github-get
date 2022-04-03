@@ -21,7 +21,7 @@ const settingsTemplate = [
     key: "githubAccount",
     type: "string",
     default: "",
-    title: "Required: Default Github Account",
+    title: "Optional: Default Github Account",
     description:
       "Your default github account username. For private repositories, it must have access to the repo that contains the code to be retrieved. See the README notes for more details.",
   },

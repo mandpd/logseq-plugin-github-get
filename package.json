@@ -1,7 +1,7 @@
 {
   "name": "logseq-plugin-github-get",
-  "version": "0.0.1",
-  "description": "Embed code from a github repo",
+  "version": "0.0.2",
+  "description": "Get a file from a github repo",
   "main": "dist/index.html",
   "targets": {
     "main": false

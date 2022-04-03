@@ -1,6 +1,12 @@
 import "@logseq/libs";
 import { BlockEntity } from "@logseq/libs/dist/LSPlugin.user";
-import { getFile, CodeType, getCommits, getRepos } from "./FileUtils";
+import {
+  getFile,
+  CodeType,
+  getCommits,
+  getRepos,
+  parseFilePath,
+} from "./FileUtils";
 
 const settingsTemplate = [
   {
@@ -34,10 +40,13 @@ logseq.useSettingsSchema(settingsTemplate);
 const checkSettings = (): boolean => {
   let initialSettings = logseq!.settings;
   if (logseq.settings) {
-    if (logseq.settings.githubAccount && logseq.settings.githubPat) return true;
+    if (logseq.settings.githubPat) return true;
   }
 
-  logseq.App.showMsg("Please complete the plugin settings", "error");
+  logseq.App.showMsg(
+    "Please enter your access token in the plugin settings.",
+    "error"
+  );
   return false;
 };
 
@@ -58,6 +67,15 @@ const refreshCode = async (blockId: string, filePath?: string) => {
   ) {
     return;
   }
+  // Abort if commit is pinned
+  if (block.content.includes("true}}")) {
+    logseq.App.showMsg(
+      `Cannot refresh a pinned file. Click on pin then try again.`,
+      "error"
+    );
+    return;
+  }
+
   const existingBlock = await logseq.Editor.getBlock(
     (block?.children![0] as BlockEntity).id
   );
@@ -92,16 +110,37 @@ const getCode = async (blockId: string, filePath?: string) => {
 
   const _filePath = filePath ? filePath : block!.content;
 
-  //Get repos from Github
-  //const repos = await getRepos();
+  // //Get repos from Github
+  // //const repos = await getRepos();
+  // let [account, repo, file] = parseFilePath(_filePath);
 
-  //Get Commits from Github
-  const commits = await getCommits(_filePath);
+  // // Abort if no account provided
+  // if (account == "") {
+  //   logseq.App.showMsg(
+  //     `No GitHub account name provided and no default set.`,
+  //     "error"
+  //   );
+  //   return {
+  //     content: "No Github account name provided and do default set.",
+  //     type: CodeType.error,
+  //   };
+  // }
+
+  // // Abort if no repo provided
+  // if (repo == "") {
+  //   logseq.App.showMsg(`No repository name provided.`, "error");
+  //   return {
+  //     content: "No repository name provided",
+  //     type: CodeType.error,
+  //   };
+  // }
+  // //Get Commits from Github
+  // //const commits = await getCommits(account, repo, file);
   // Get the file from Github
   const contents = await getFile(_filePath);
 
   if (contents.type == CodeType.error) {
-    logseq.App.showMsg(`VS Code Error: ${_filePath}`, "error");
+    // logseq.App.showMsg(`VS Code Error: ${_filePath}`, "error");
     return;
   }
 
@@ -133,34 +172,33 @@ const insertRefreshBtn = async (
   const block = await logseq.Editor.getBlock(blockId, {
     includeChildren: true,
   });
-  // Insert recyle button
-  if (!block!.content.includes("renderer :github"))
+  // Insert recycle button
+  if (!block!.content.includes("renderer :github")) {
+    let [account, repo, file] = parseFilePath(block!.content);
     logseq.Editor.updateBlock(
       blockId,
-      `{{renderer :github_${genRandomStr()}, ${block!.content}${
-        commit_id ? ", " + commit_id : ""
-      }${pin ? ", true" : ", false"}}}`
+      `{{renderer :github_${genRandomStr()}, ${
+        account + "::" + repo + ":" + file
+      }${commit_id ? ", " + commit_id : ""}${pin ? ", true" : ", false"}}}`
     );
+  }
 };
 
 // Called when logseq is first loaded
 logseq
   .ready(() => {
-    console.log("logseq-plugin-vscode-ref loaded");
+    console.log("logseq-plugin-github-get loaded");
 
-    logseq.Editor.registerSlashCommand("Github Code Embed", async (e) => {
+    logseq.Editor.registerSlashCommand("Get Github File", async (e) => {
       if (!checkSettings()) return;
 
       getCode(e.uuid);
     });
-    logseq.Editor.registerBlockContextMenuItem(
-      "Github Code Embed",
-      async (e) => {
-        if (!checkSettings()) return;
-        insertRefreshBtn(e.uuid);
-        getCode(e.uuid);
-      }
-    );
+    logseq.Editor.registerBlockContextMenuItem("Get Github File", async (e) => {
+      if (!checkSettings()) return;
+      insertRefreshBtn(e.uuid);
+      getCode(e.uuid);
+    });
 
     logseq.setMainUIInlineStyle({
       position: "fixed",
@@ -171,10 +209,8 @@ logseq
 
     logseq.App.onMacroRendererSlotted(({ slot, payload }) => {
       let [type, filePath, commit_id, pin] = payload.arguments;
-      // check filePath includes repo
-      if (!filePath.includes(":") && logseq.settings) {
-        filePath = logseq.settings.githubRepo + ":" + filePath;
-      }
+
+      let [account, repo, file] = parseFilePath(filePath);
 
       if (!type?.startsWith(":github_")) return;
 
@@ -257,11 +293,12 @@ logseq
         reset: true,
         template: `
             <button class="github-refresh-btn"
+              title= ${account + "::" + repo + ":" + file}
               data-slot-id="${slot}"
               data-block-uuid="${payload.uuid}"
-              data-file-path="${filePath}"
+              data-file-path="${account + "::" + repo + ":" + file}"
               data-on-click="refreshGithub">
-            ${filePath} 🔄 
+            ${file} 🔄 
             </button>
             <button class="github-commit-id"
               data-block-uuid="${payload.uuid}"

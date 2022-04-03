@@ -5,7 +5,7 @@ import "@logseq/libs";
 const decode = (str: string): string =>
   Buffer.from(str, "base64").toString("binary");
 const contents = "/contents/";
-let commit_id = '';
+let commit_id = "";
 
 /**
  * File Types that are recognized on import
@@ -99,7 +99,36 @@ interface RepoListEntry {
   description: string;
 }
 
-let repoCommitsList: { reponame: string, commits: CommitListEntry[] }[] = [];
+let repoCommitsList: {
+  account: string;
+  repo: string;
+  commits: CommitListEntry[];
+}[] = [];
+
+export const parseFilePath = (filePath: string): string[] => {
+  let account = logseq!.settings!.githubAccount
+    ? logseq!.settings!.githubAccount
+    : "";
+  let repo = logseq!.settings!.githubRepo ? logseq!.settings!.githubRepo : "";
+
+  // Parse filepath for Github account name
+  let parts = filePath.split("::");
+  if (parts.length == 2) {
+    // Parse the path for the account name
+    account = parts[0];
+    filePath = parts[1];
+  }
+
+  // Parse filePath for repo name
+  parts = filePath.split(":");
+  if (parts.length == 2) {
+    repo = parts[0];
+    filePath = parts[1];
+  }
+
+  return [account, repo, filePath];
+};
+
 /**
  *
  * @param filePath
@@ -110,17 +139,23 @@ let repoCommitsList: { reponame: string, commits: CommitListEntry[] }[] = [];
 
 export async function getFile(filePath: string): Promise<CodeFile> {
   //Retrieve github settings
-  const githubURL =
-    "https://api.github.com/repos/" + logseq!.settings!.githubAccount + "/";
-  let repo = logseq!.settings!.githubRepo ? logseq!.settings!.githubRepo : "";
+  const githubURL = "https://api.github.com/repos/";
+
   const token = logseq!.settings!.githubPat;
   try {
-    // Parse filePath for repo name
-    const parts = filePath.split(":");
-    if (parts.length == 2) {
-      repo = parts[0];
-      filePath = parts[1];
+    let [account, repo, file] = parseFilePath(filePath);
+    // Abort if no account provided
+    if (account == "") {
+      logseq.App.showMsg(
+        `No GitHub account name provided and no default set.`,
+        "error"
+      );
+      return {
+        content: "No Github account name provided and do default set.",
+        type: CodeType.error,
+      };
     }
+
     // Abort if no repo provided
     if (repo == "") {
       logseq.App.showMsg(`No repository name provided.`, "error");
@@ -130,16 +165,20 @@ export async function getFile(filePath: string): Promise<CodeFile> {
       };
     }
 
-
-    getCommits(repo);
+    await getCommits(account, repo, file);
 
     // Update commit_if
-    commit_id = '?ref=' + repoCommitsList.find(rcl => { return rcl.reponame == repo })?.commits[0].id;
+    commit_id =
+      "?ref=" +
+      repoCommitsList.find((rcl) => {
+        return rcl.repo == repo && rcl.account == account;
+      })?.commits[0].id;
 
-    const endpoint = githubURL + repo + contents + filePath + commit_id;
+    const endpoint =
+      githubURL + account + "/" + repo + contents + file + commit_id;
     console.log(`get file endpoint is ${endpoint}`); //TODO: Remove
     //TODO check for Windows style folder delimiters
-    let bits = filePath.split(".");
+    let bits = file.split(".");
     if (bits.length == 1) {
       return {
         content: "No Delimiter",
@@ -160,7 +199,7 @@ export async function getFile(filePath: string): Promise<CodeFile> {
       type: CodeTypes.find((c) => {
         return c.ext == fileType;
       })?.type,
-      commit_id: response.data.url.split('=').pop()
+      commit_id: response.data.url.split("=").pop(),
     };
   } catch (err) {
     if ((err.message = "Failed to fetch")) {
@@ -205,39 +244,39 @@ export async function getRepos(): Promise<RepoListEntry[]> {
   return repoList;
 }
 
-export async function getCommits(filePath: string): Promise<void> {
+export async function getCommits(
+  account: string,
+  repo: string,
+  file: string
+): Promise<void> {
   //Retrieve github settings
-  const githubURL =
-    "https://api.github.com/repos/" + logseq!.settings!.githubAccount + "/";
-  let repo = logseq!.settings!.githubRepo ? logseq!.settings!.githubRepo : "";
+  const githubURL = "https://api.github.com/repos/" + account + "/";
   const token = logseq!.settings!.githubPat;
 
-  // Parse filePath for repo name
-  const parts = filePath.split(":");
-  if (parts.length == 2) {
-    repo = parts[0];
-    filePath = parts[1];
-  }
-  // Abort if no repo provided
-  if (repo == "") {
-    logseq.App.showMsg(`No repository name provided.`, "error");
-    return;
-  }
-
   // Check if the commit list already exists
-  let arIndex = repoCommitsList.findIndex(a => { return a.reponame == repo});
+  let arIndex = repoCommitsList.findIndex((a) => {
+    return a.repo == repo && a.account == account;
+  });
   // TODO: Options on when to refresh/persist commits
-  
+
   //Update commit list
   const endpoint = githubURL + repo + "/commits";
-  // console.log(endpoint); //TODO: Remove
+  console.log(`get commits endpoint is ${endpoint}`); //TODO: Remove
 
   let response = await axios.get(endpoint, {
     headers: {
       Authorization: `token ${token}`,
     },
   });
-  const commitList: { reponame: string, commits: CommitListEntry[] } = { reponame: repo, commits: []};
+  const commitList: {
+    account: string;
+    repo: string;
+    commits: CommitListEntry[];
+  } = {
+    account: account,
+    repo: repo,
+    commits: [],
+  };
   response.data.forEach((commit) => {
     commitList.commits.push({
       message: commit.commit.message,
@@ -247,11 +286,11 @@ export async function getCommits(filePath: string): Promise<void> {
   console.log(`commits object is ${JSON.stringify(commitList)}`);
 
   // Add or Update
-  if(arIndex >= 0) {
+  if (arIndex >= 0) {
     repoCommitsList[arIndex] = commitList;
   } else {
     repoCommitsList.push(commitList);
   }
- 
+
   return;
 }

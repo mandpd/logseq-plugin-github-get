@@ -47,17 +47,17 @@ This example shows how to embed a file from a repository which is synced to Gith
 3. Select the file within your IDE that you wish to embed within LogSeq.
 4. Copy the relative path of the file from the root of the local copy. (You can obtain this in VS Code by right-clicking on the file in the Explorer and selecting `Copy Relative Path` from the context menu).
 5. Select an empty block in LogSeq where you want to import the file. Paste the relative path of the file. e.g. `src/package.json`
-6. Run the `Github Code Embed` command by entering `/Github Code Embed` after the file path.
+6. Run the `Get Github File` command by entering `/Get Github File` after the file path.
 7. If the configuration and file path are correctly entered the code should appear immediately below the selected block.
 
 ### Using with files in another Github repository and/or account
 
 Step 4 should be amended as follows:
 
-1. If the file is not in the default repository, enter the name of repository, followed by a colon ':', before the relative path. e.g. `another-repo:src/package-json`
-2. If the file is not in the default account nor the default repository, enter the name of the account, followed by '?', the name of the repository, followed by a colon ':', before the relative path. `another-account?yet-another-repo:src/package.json`
+1. If the file is not in the default repository, enter the name of repository, followed by a double-colon '::', before the relative path. e.g. `another-repo:src/package-json`
+2. If the file is not in the default account nor the default repository, enter the name of the account, followed by '?', the name of the repository, followed by a colon ':', before the relative path. `another-account::yet-another-repo:src/package.json`
 
-The general URL format is `<account name>?<repository name>?<relative filepath>`
+The general URL format is `<account name>::<repository name>?<relative filepath>`
 
 ## Refreshing the code
 
@@ -65,10 +65,14 @@ The general URL format is `<account name>?<repository name>?<relative filepath>`
 2. To guard against accidental refresh, click on the commit id. This will toggle a `pin` icon. When the pin icon is visible the refresh button is disabled.
 3. To re-enable refresh, click the commit id again. The pin icon will disappear.
 
-## Installing the Plugin
+## Installing the Plugin Manually
 
-1. Clone the [plugin repo](https://github.com/mandpd/logseq-plugin-vscode-ref) to a local folder.
+1. Clone the [plugin repo](https://github.com/mandpd/logseq-plugin-github-get) to a local folder.
 2. In logseq, open `Logseq→Settings`, enable developer mode.
 3. Open `Logseq→Plugins`, choose `Load unpacked plugin`, and select the location where you saved the source code.
 4. Follow the configuration steps given above.
-5. The `Github Code Embed` command should now be installed and active.
+5. The `Get Github File` command should now be installed and active.
+
+## Supported file types
+
+The following file types will be recognized and the appropriate code parser selected for the code block - typescript, javascript, html, php, markdown, Jupyter python notebooks, julia, R Python, YAML, docker, and typescript react.

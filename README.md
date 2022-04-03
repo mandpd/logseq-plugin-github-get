@@ -1,4 +1,4 @@
-# Embed code from a Github repository into a logseq block
+# Github File Getter
 
 ## Overview
 

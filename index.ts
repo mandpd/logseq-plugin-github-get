@@ -109,37 +109,10 @@ const getCode = async (blockId: string, filePath?: string) => {
 
   const _filePath = filePath ? filePath : block!.content;
 
-  // //Get repos from Github
-  // //const repos = await getRepos();
-  // let [account, repo, file] = parseFilePath(_filePath);
-
-  // // Abort if no account provided
-  // if (account == "") {
-  //   logseq.App.showMsg(
-  //     `No GitHub account name provided and no default set.`,
-  //     "error"
-  //   );
-  //   return {
-  //     content: "No Github account name provided and do default set.",
-  //     type: CodeType.error,
-  //   };
-  // }
-
-  // // Abort if no repo provided
-  // if (repo == "") {
-  //   logseq.App.showMsg(`No repository name provided.`, "error");
-  //   return {
-  //     content: "No repository name provided",
-  //     type: CodeType.error,
-  //   };
-  // }
-  // //Get Commits from Github
-  // //const commits = await getCommits(account, repo, file);
   // Get the file from Github
   const contents = await getFile(_filePath);
 
   if (contents.type == CodeType.error) {
-    // logseq.App.showMsg(`VS Code Error: ${_filePath}`, "error");
     return;
   }
 
@@ -239,12 +212,6 @@ logseq
           if (block?.content.includes("false")) {
             updatedContent = block?.content.replace("false", "true");
             const { rect } = e;
-
-            // logseq.setMainUIInlineStyle({
-            //   top: `${rect.top + 20}px`,
-            //   left: `${rect.right - 10}px`,
-            // });
-
             logseq.toggleMainUI();
           }
           if (block?.content.includes("true")) {
@@ -321,5 +288,4 @@ logseq
   })
   .catch((err) => {
     console.log(`VS Code Error: ${err.message}`);
-    console.error;
   });

@@ -182,8 +182,6 @@ export async function getFile(filePath: string): Promise<CodeFile> {
 
     const endpoint =
       githubURL + account + "/" + repo + contents + file + "?ref=" + commit_id;
-    console.log(`get file endpoint is ${endpoint}`); //TODO: Remove
-    //TODO check for Windows style folder delimiters
     let bits = file.split(".");
     if (bits.length == 1) {
       return {
@@ -197,7 +195,7 @@ export async function getFile(filePath: string): Promise<CodeFile> {
         Authorization: `token ${token}`,
       },
     });
-    // console.log(`response is: ${JSON.stringify(response)}`);
+
     let myText = decode(response.data.content);
     myText.replace(/\n/g, "\r");
     return {
@@ -206,7 +204,7 @@ export async function getFile(filePath: string): Promise<CodeFile> {
         return c.ext == fileType;
       })?.type,
       commit_id: commit_id,
-      commit_message: commit_message, // response.data.url.split("=").pop(),
+      commit_message: commit_message,
     };
   } catch (err) {
     if ((err.message = "Failed to fetch")) {
@@ -233,8 +231,6 @@ export async function getRepos(): Promise<RepoListEntry[]> {
   const endpoint = "https://api.github.com/user/repos?per_page=100";
   const token = logseq!.settings!.githubPat;
 
-  console.log(endpoint); //TODO: Remove
-
   let response = await axios.get(endpoint, {
     headers: {
       Authorization: `token ${token}`,
@@ -247,7 +243,6 @@ export async function getRepos(): Promise<RepoListEntry[]> {
       description: repo.description,
     });
   });
-  console.log(`repos object is ${JSON.stringify(repoList)}`);
   return repoList;
 }
 
@@ -264,11 +259,9 @@ export async function getCommits(
   let arIndex = repoCommitsList.findIndex((a) => {
     return a.repo == repo && a.account == account;
   });
-  // // TODO: Options on when to refresh/persist commits
 
   //Update commit list
   const endpoint = githubURL + repo + "/commits";
-  console.log(`get commits endpoint is ${endpoint}`); //TODO: Remove
 
   let response = await axios.get(endpoint, {
     headers: {
@@ -286,13 +279,11 @@ export async function getCommits(
   };
   response.data.forEach((commit) => {
     commitList.commits.push({
-      message: commit.commit.message,
+      message: commit.commit.message.replace(/\n/g, " ").replace(/\r/g, " "),
       date: new Date(commit.commit.author.date),
       id: commit.url.split("/").pop(),
     });
   });
-  console.log(`commits object is ${JSON.stringify(commitList)}`);
-
   // Add or Update
   if (arIndex >= 0) {
     repoCommitsList[arIndex] = commitList;

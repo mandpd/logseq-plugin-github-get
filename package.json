@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-github-get",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Get a file from a github repo",
   "main": "dist/index.html",
   "targets": {

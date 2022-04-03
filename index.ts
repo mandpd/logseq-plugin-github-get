@@ -70,8 +70,7 @@ const refreshCode = async (blockId: string, filePath?: string) => {
   // Abort if commit is pinned
   if (block.content.includes("true}}")) {
     logseq.App.showMsg(
-      `Cannot refresh a pinned file. Click on pin then try again.`,
-      "error"
+      `Cannot refresh a pinned file. Click on pin then try again.`
     );
     return;
   }
@@ -159,7 +158,7 @@ const getCode = async (blockId: string, filePath?: string) => {
     }
   );
 
-  insertRefreshBtn(blockId, contents.commit_id);
+  insertRefreshBtn(blockId, contents.commit_id, contents.commit_message);
   // Exit editor
   logseq.Editor.exitEditingMode();
 };
@@ -167,6 +166,7 @@ const getCode = async (blockId: string, filePath?: string) => {
 const insertRefreshBtn = async (
   blockId: string,
   commit_id?: string,
+  commit_message?: string,
   pin = true
 ) => {
   const block = await logseq.Editor.getBlock(blockId, {
@@ -179,12 +179,15 @@ const insertRefreshBtn = async (
       blockId,
       `{{renderer :github_${genRandomStr()}, ${
         account + "::" + repo + ":" + file
-      }${commit_id ? ", " + commit_id : ""}${pin ? ", true" : ", false"}}}`
+      }${commit_id ? ", " + commit_id : ""}${
+        commit_message ? ", " + commit_message : ""
+      }${pin ? ", true" : ", false"}}}`
     );
   } else {
     //update commit id
     let bits = block!.content.split(",");
     bits[2] = commit_id ? commit_id : bits[2];
+    bits[3] = commit_message ? commit_message : bits[3];
     let replacement = bits.join(",");
     logseq.Editor.updateBlock(blockId, replacement);
   }
@@ -214,7 +217,7 @@ logseq
     });
 
     logseq.App.onMacroRendererSlotted(({ slot, payload }) => {
-      let [type, filePath, commit_id, pin] = payload.arguments;
+      let [type, filePath, commit_id, commit_message, pin] = payload.arguments;
 
       let [account, repo, file] = parseFilePath(filePath);
 
@@ -248,7 +251,7 @@ logseq
             updatedContent = block?.content.replace("true", "false");
           }
 
-          // Update recyle button
+          // Update recycle button
           logseq.Editor.updateBlock(e.dataset.blockUuid, updatedContent);
         },
       });
@@ -299,7 +302,7 @@ logseq
         reset: true,
         template: `
             <button class="github-refresh-btn"
-              title= ${account + "::" + repo + ":" + file}
+              title= "${account + "::" + repo + ":" + file}"
               data-slot-id="${slot}"
               data-block-uuid="${payload.uuid}"
               data-file-path="${account + "::" + repo + ":" + file}"
@@ -307,9 +310,10 @@ logseq
             ${file} 🔄 
             </button>
             <button class="github-commit-id"
+              title= "${commit_message}"
               data-block-uuid="${payload.uuid}"
               data-on-click="togglePin">
-            ${commit_id.substr(0, 7)}${pin == "true" ? "📌" : ""}
+            ${commit_id.substring(0, 7)}${pin == "true" ? "📌" : ""}
             </button>
           `,
       });

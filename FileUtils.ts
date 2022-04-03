@@ -6,6 +6,7 @@ const decode = (str: string): string =>
   Buffer.from(str, "base64").toString("binary");
 const contents = "/contents/";
 let commit_id = "";
+let commit_message = "";
 
 /**
  * File Types that are recognized on import
@@ -87,6 +88,7 @@ interface CodeFile {
   content: string;
   type: CodeType | undefined;
   commit_id?: string;
+  commit_message?: string;
 }
 
 interface CommitListEntry {
@@ -176,6 +178,7 @@ export async function getFile(filePath: string): Promise<CodeFile> {
       (a, b) => b.date.getMilliseconds() - a.date.getMilliseconds()
     )[0];
     commit_id = latestRepo?.id;
+    commit_message = latestRepo?.message;
 
     const endpoint =
       githubURL + account + "/" + repo + contents + file + "?ref=" + commit_id;
@@ -202,7 +205,8 @@ export async function getFile(filePath: string): Promise<CodeFile> {
       type: CodeTypes.find((c) => {
         return c.ext == fileType;
       })?.type,
-      commit_id: commit_id, // response.data.url.split("=").pop(),
+      commit_id: commit_id,
+      commit_message: commit_message, // response.data.url.split("=").pop(),
     };
   } catch (err) {
     if ((err.message = "Failed to fetch")) {

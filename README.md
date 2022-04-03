@@ -36,7 +36,7 @@ This example shows how to embed a file from a repository which is synced to Gith
 3. Open Logseq and select `Add a graph` from the left sidebar graph menu item.
 4. Navigate to the docs `folder` that you have just created.
 5. Use Logseq to document your development process.
-6. When you are ready to document specific code in the repository, follow the per-file to embed process described below.
+6. When you are ready to document specific code in the repository, follow the `Running the Github Command` process described below.
 
 ## Running the Github Command
 
@@ -54,10 +54,10 @@ This example shows how to embed a file from a repository which is synced to Gith
 
 Step 4 should be amended as follows:
 
-1. If the file is not in the default repository, enter the name of repository, followed by a double-colon '::', before the relative path. e.g. `another-repo:src/package-json`
-2. If the file is not in the default account nor the default repository, enter the name of the account, followed by '?', the name of the repository, followed by a colon ':', before the relative path. `another-account::yet-another-repo:src/package.json`
+1. If the file is not in the default repository, enter the name of repository, followed by a colon ':', before the relative path. e.g. `another-repo:src/package-json`
+2. If the file is not in the default account nor the default repository, enter the name of the account, followed by a double-colon '::', the name of the repository, followed by a colon ':', before the relative path. `another-account::yet-another-repo:src/package.json`
 
-The general URL format is `<account name>::<repository name>?<relative filepath>`
+The general URL format is `<account name>::<repository name>:<relative filepath>`
 
 ## Refreshing the code
 

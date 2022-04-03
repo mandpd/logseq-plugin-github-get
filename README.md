@@ -1,4 +1,4 @@
-# Github File Getter
+# Github File Getter (logseq-plugin-github-get)
 
 ## Overview
 

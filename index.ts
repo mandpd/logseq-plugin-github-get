@@ -181,6 +181,12 @@ const insertRefreshBtn = async (
         account + "::" + repo + ":" + file
       }${commit_id ? ", " + commit_id : ""}${pin ? ", true" : ", false"}}}`
     );
+  } else {
+    //update commit id
+    let bits = block!.content.split(",");
+    bits[2] = commit_id ? commit_id : bits[2];
+    let replacement = bits.join(",");
+    logseq.Editor.updateBlock(blockId, replacement);
   }
 };
 

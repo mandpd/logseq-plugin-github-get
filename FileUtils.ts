@@ -91,6 +91,7 @@ interface CodeFile {
 
 interface CommitListEntry {
   id: string;
+  date: Date;
   message: string;
 }
 
@@ -167,15 +168,17 @@ export async function getFile(filePath: string): Promise<CodeFile> {
 
     await getCommits(account, repo, file);
 
-    // Update commit_if
-    commit_id =
-      "?ref=" +
-      repoCommitsList.find((rcl) => {
-        return rcl.repo == repo && rcl.account == account;
-      })?.commits[0].id;
+    // Update commit_id to latest commit
+    const repoCommits = repoCommitsList.find((rcl) => {
+      return rcl.repo == repo && rcl.account == account;
+    })?.commits;
+    const latestRepo = repoCommits!.sort(
+      (a, b) => b.date.getMilliseconds() - a.date.getMilliseconds()
+    )[0];
+    commit_id = latestRepo?.id;
 
     const endpoint =
-      githubURL + account + "/" + repo + contents + file + commit_id;
+      githubURL + account + "/" + repo + contents + file + "?ref=" + commit_id;
     console.log(`get file endpoint is ${endpoint}`); //TODO: Remove
     //TODO check for Windows style folder delimiters
     let bits = file.split(".");
@@ -199,7 +202,7 @@ export async function getFile(filePath: string): Promise<CodeFile> {
       type: CodeTypes.find((c) => {
         return c.ext == fileType;
       })?.type,
-      commit_id: response.data.url.split("=").pop(),
+      commit_id: commit_id, // response.data.url.split("=").pop(),
     };
   } catch (err) {
     if ((err.message = "Failed to fetch")) {
@@ -257,7 +260,7 @@ export async function getCommits(
   let arIndex = repoCommitsList.findIndex((a) => {
     return a.repo == repo && a.account == account;
   });
-  // TODO: Options on when to refresh/persist commits
+  // // TODO: Options on when to refresh/persist commits
 
   //Update commit list
   const endpoint = githubURL + repo + "/commits";
@@ -280,6 +283,7 @@ export async function getCommits(
   response.data.forEach((commit) => {
     commitList.commits.push({
       message: commit.commit.message,
+      date: new Date(commit.commit.author.date),
       id: commit.url.split("/").pop(),
     });
   });

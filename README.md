@@ -7,7 +7,7 @@ The main goal is to enhance the ability to document code development and final c
 
 ## Suggested Use
 
-Create a new logseq graph in the root of your code repository under a `\docs` folder.
+Create a new logseq graph in the root of your code repository under a `/docs` folder.
 The logseq Journal can be used to document the day-by-day development progress.
 As code is developed and pushed to Github, the code can be retrieved and inserted into a Logseq page block using this plugin.
 The code can then be documented using Logseq's extensive note taking capabilities.
@@ -24,7 +24,7 @@ This example shows how to embed a file from a repository which is synced to Gith
 
 1. Ensure you are running [logseq version 0.6.5](https://github.com/logseq/logseq/releases) or later.
 2. Open the logseq settings menu.
-3. Select `Plugin Settings` and click on the `logseq-plugin-github-get` tab.
+3. Select `Plugin Settings` and click on the `Github File Getter` tab.
 4. _Required_: Enter a personal access token with full repository access rights in the field labeled `githubPat`. For more information on how to generate a personal access token, look [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 5. Optional: Enter the default github account name that your repository resides in. Use your `username` (not your email address) in the field labeled `githubAccount`. If this is left empty you must provide the account for every repository file that you wish to retrieve. See the section `Running the Github Command` below for the correct URL to use.
 6. Optional: Enter the name of the repository where your files reside. If this is left empty you must provide the account for every repository file that you wish to retrieve. See the section `Running the Github Command` below for the correct URL to use.
@@ -75,4 +75,4 @@ The general URL format is `<account name>::<repository name>:<relative filepath>
 
 ## Supported file types
 
-The following file types will be recognized and the appropriate code parser selected for the code block - typescript, javascript, html, php, markdown, Jupyter python notebooks, julia, R Python, YAML, docker, and typescript react.
+The file types supported by [Code Mirror](https://codemirror.net/mode/index.html) will be recognized and the appropriate code parser selected for the code block.

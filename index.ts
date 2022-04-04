@@ -112,7 +112,7 @@ const getCode = async (blockId: string, filePath?: string) => {
   // Get the file from Github
   const contents = await getFile(_filePath);
 
-  if (contents.type == CodeType.error) {
+  if (contents.type == "error") {
     return;
   }
 

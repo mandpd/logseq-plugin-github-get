@@ -2,6 +2,5 @@ node_modules
 .parcel-cache/
 .lsp/
 .vscode/
-docs/
 samples/
 .pnpm-debug.log
